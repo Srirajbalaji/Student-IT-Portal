@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student IT Report Portal</title>
+    <style>
+        /* Basic Styling */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            background-color: #f4f7fc;
+            color: #333;
+        }
+
+        header {
+            background-color: #005f99;
+            color: white;
+            padding: 15px 20px;
+            text-align: center;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            max-width: 800px;
+            margin: 20px auto;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-around;
+            background-color: #eaf3f9;
+            padding: 10px;
+            border-bottom: 1px solid #eaf3f9;
+        }
+
+        nav button {
+            background: none;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-size: 16px;
+            color: #005f99;
+            border-radius: 5px;
+        }
+
+        nav button:hover {
+            background-color: #d0e9f9;
+        }
+
+        .content {
+            padding: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .form-group button {
+            background-color: #005f99;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .form-group button:hover {
+            background-color: #00477a;
+        }
+
+        .reports {
+            margin-top: 20px;
+        }
+
+        .report-card {
+            padding: 10px;
+            background: #f9f9f9;
+            border: 1px solid #e0e0e0;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+
+        footer {
+            text-align: center;
+            background: #005f99;
+            color: white;
+            padding: 10px;
+            margin-top: 20px;
+        }
+
+        /* Floating download button */
+        #download-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #005f99;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        #download-btn:hover {
+            background-color: #00477a;
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Page -->
+    <div id="login-page" class="login-container">
+        <h2>Login</h2>
+        <form id="login-form" onsubmit="login(event)">
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" placeholder="Enter username" required />
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" placeholder="Enter password" required />
+            </div>
+            <button type="submit" class="btn login-btn">Login</button>
+            <a href="#" class="toggle-link" onclick="toggleForms('register')">Don't have an account? Register</a>
+        </form>
+    </div>
+
+    <!-- Register Page -->
+    <div id="Register-page" class="Register-container" style="display: none;">
+        <h2>Register</h2>
+        <form id="Register-form" onsubmit="register(event)">
+            <div class="form-group">
+                <label for="Username">Username</label>
+                <input type="text" id="Username" required>
+            </div>
+            <div class="form-group">
+                <label for="Password">Password</label>
+                <input type="password" id="Password" required>
+            </div>
+            <div class="form-group">
+                <label for="confirm-password">Confirm Password</label>
+                <input type="password" id="confirm-password" required>
+            </div>
+            <button type="submit" class="btn login-btn">Register</button>
+            <a href="#" class="toggle-link" onclick="toggleForms('login')">Already have an account? Login</a>
+        </form>
+    </div>
+
+    <!-- Main Portal -->
+    <div id="main-portal" class="container" style="display: none;">
+        <header>
+            <h1>Student IT Report Portal</h1>
+        </header>
+        <nav>
+            <button onclick="showForm('Presence Record')">Presence Record</button>
+            <button onclick="showReports()">View Reports</button>
+        </nav>
+        <div class="content" id="content"></div>
+        <footer>
+            <p>© 2024 Student IT Report Portal. All rights reserved.</p>
+        </footer>
+    </div>
+
+    <script>
+        const DEFAULT_USERNAME = "admin";
+        const DEFAULT_PASSWORD = "password123";
+
+        // Check login state
+        if (localStorage.getItem('isLoggedIn') === 'true') {
+            showMainPortal();
+        } else {
+            showLoginPage();
+        }
+
+        function showLoginPage() {
+            document.getElementById('login-page').style.display = 'block';
+            document.getElementById('main-portal').style.display = 'none';
+        }
+
+        function showMainPortal() {
+            document.getElementById('login-page').style.display = 'none';
+            document.getElementById('main-portal').style.display = 'block';
+        }
+
+        function toggleForms(form) {
+            if (form === 'register') {
+                document.getElementById('login-page').style.display = 'none';
+                document.getElementById('Register-page').style.display = 'block';
+            } else {
+                document.getElementById('login-page').style.display = 'block';
+                document.getElementById('Register-page').style.display = 'none';
+            }
+        }
+
+        function login(event) {
+            event.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            const users = JSON.parse(localStorage.getItem('users')) || [];
+            const user = users.find(user => user.username === username && user.password === password);
+
+            if (user || (username === DEFAULT_USERNAME && password === DEFAULT_PASSWORD)) {
+                localStorage.setItem('isLoggedIn', 'true');
+                alert('Login successful!');
+                showMainPortal();
+            } else {
+                alert('Invalid username or password.');
+            }
+        }
+
+        function register(event) {
+            event.preventDefault();
+            const username = document.getElementById('Username').value;
+            const password = document.getElementById('Password').value;
+            const confirmPassword = document.getElementById('confirm-password').value;
+
+            if (password !== confirmPassword) {
+                alert('Passwords do not match.');
+                return;
+            }
+
+            const users = JSON.parse(localStorage.getItem('users')) || [];
+            if (users.some(user => user.username === username)) {
+                alert('Username already exists.');
+                return;
+            }
+
+            users.push({ username, password });
+            localStorage.setItem('users', JSON.stringify(users));
+            alert('Registration successful!');
+            toggleForms('login');
+        }
+
+        const reports = JSON.parse(localStorage.getItem('reports')) || [];
+
+        function showForm(type) {
+            const content = document.getElementById('content');
+            content.innerHTML = `
+                <h2>${type} Form</h2>
+                <form onsubmit="submitReport(event, '${type}')">
+                    <div class="form-group">
+                        <label for="name">Name</label>
+                        <input type="text" id="name" placeholder="" required />
+                    </div>
+                    <div class="form-group">
+                        <label for="date">Date</label>
+                        <input type="date" id="date" required />
+                    </div>
+                    <div class="form-group">
+                        <label for="login">Log-in Time</label>
+                        <input type="time" id="login" required />
+                    </div>
+                    <div class="form-group">
+                        <label for="logout">Log-out Time</label>
+                        <input type="time" id="logout" required />
+                    </div>
+                    <div class="form-group">
+                        <label for="project-title">Project Title</label>
+                        <input type="text" id="project-title" placeholder="" required />
+                    </div>
+                    <div class="form-group">
+                        <label for="Poject-Summary">Poject Summary </label>
+                        <input type="text" id="Poject-Summary " placeholder="" required />
+                        </div>
+
+                    <div class="form-group">
+                        <label for="Daily Progress">Daily Progress</label>
+                        <input type="text" id="Daily-Progress" placeholder="" required />
+                        </div>
+
+                        <div class="form-group">
+                        <label for="Problem-faced">Problem faced</label>
+                        <input type="text" id="Problem-faced" placeholder="" required />
+                        </div>
+                        
+                        
+
+                    <div class="form-group">
+                        <button type="submit">Submit</button>
+                    </div>
+                </form>
+            `;
+        }
+
+        function submitReport(event, type) {
+            event.preventDefault();
+            const name = document.getElementById('name').value;
+            const date = document.getElementById('date').value;
+            const login = document.getElementById('login').value;
+            const logout = document.getElementById('logout').value;
+            const projectTitle = document.getElementById('project-title').value;
+
+            const newReport = {
+                name,
+                date,
+                login,
+                logout,
+                projectTitle,
+                type
+            };
+
+            reports.push(newReport);
+            localStorage.setItem('reports', JSON.stringify(reports));
+            alert('Report submitted successfully!');
+            showReports();
+        }
+
+        function showReports() {
+            const content = document.getElementById('content');
+            content.innerHTML = '';
+
+            if (reports.length > 0) {
+                reports.forEach(report => {
+                    const reportCard = document.createElement('div');
+                    reportCard.classList.add('report-card');
+                    reportCard.innerHTML = `
+                        <strong>${report.type}</strong><br>
+                        Name: ${report.name}<br>
+                        Date: ${report.date}<br>
+                        Log-in: ${report.login}<br>
+                        Log-out: ${report.logout}<br>
+                        Project Title: ${report.projectTitle}
+                    `;
+                    content.appendChild(reportCard);
+                });
+
+                content.innerHTML += `<button id="download-btn" onclick="downloadReports()">Download Reports</button>`;
+            } else {
+                content.innerHTML = `<p>No reports available yet.</p>`;
+            }
+        }
+
+        function downloadReports() {
+            const reportJSON = JSON.stringify(reports);
+            const blob = new Blob([reportJSON], { type: 'application/Excel' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'reports.json';
+            link.click();
+        }
+    </script>
+</body>
+</html>
